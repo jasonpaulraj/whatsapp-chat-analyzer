@@ -1,0 +1,131 @@
+# WhatsApp Chat Analyzer
+
+This project is a web application that analyzes exported WhatsApp chat files (either `.txt` or `.zip` containing a `.txt` file). It provides various statistics and visualizations about the chat.
+
+## Features
+
+- **Chat Upload**: Users can upload their WhatsApp chat export file.
+- **Total Messages**: Displays the total number of messages in the chat.
+- **Messages per Sender**: Shows a count of messages sent by each participant.
+- **Most Common Words**: Lists the top 10 most frequently used words.
+- **Most Common Emojis**: Lists the top 10 most frequently used emojis.
+- **Sentiment Analysis**: Calculates and displays the average sentiment polarity for each sender.
+- **Daily Activity**: Shows the volume of messages exchanged per day.
+- **Busiest Day**: Identifies the day with the highest number of messages.
+- **Visualizations**: Generates and displays plots for:
+    - Messages per Sender
+    - Daily Message Volume
+    - Average Sentiment per Sender
+
+## Technologies Used
+
+- **Backend**: Python, FastAPI
+- **Frontend**: HTML, Jinja2 Templates
+- **Data Analysis**: TextBlob (for sentiment analysis), Matplotlib & Seaborn (for plotting)
+- **Containerization**: Docker
+
+## Project Structure
+
+```
+whatsapp-chat-analyzer/
+├── .dockerignore
+├── Dockerfile
+├── README.md
+├── app/
+│   ├── __init__.py
+│   ├── main.py         # FastAPI application logic, routing
+│   ├── static/         # Static files (CSS, JS, images)
+│   │   └── plots/      # Directory where generated plots are saved
+│   ├── templates/
+│   │   ├── result.html   # HTML template for displaying analysis results
+│   │   └── upload.html   # HTML template for the file upload form
+│   ├── uploads/        # Directory where uploaded chat files are temporarily stored
+│   └── utils.py        # Chat parsing, analysis functions, plot generation
+└── requirements.txt    # Python dependencies
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Docker installed (if running with Docker)
+- Python 3.10+ (if running locally)
+
+### Running with Docker (Recommended)
+
+1.  **Build the Docker image:**
+    ```bash
+    docker build -t whatsapp-chat-analyzer .
+    ```
+
+2.  **Run the Docker container:**
+    ```bash
+    docker run -p 8000:8000 whatsapp-chat-analyzer
+    ```
+
+3.  Open your browser and navigate to `http://localhost:8000`.
+
+### Running Locally
+
+1.  **Clone the repository (if you haven't already):**
+    ```bash
+    # git clone <repository-url>
+    # cd whatsapp-chat-analyzer
+    ```
+
+2.  **Create a virtual environment and activate it (optional but recommended):**
+    ```bash
+    python -m venv venv
+    # On Windows
+    venv\Scripts\activate
+    # On macOS/Linux
+    source venv/bin/activate
+    ```
+
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Run the application using Uvicorn:**
+    Navigate to the `app` directory if you are in the project root:
+    ```bash
+    cd app
+    ```
+    Then run:
+    ```bash
+    uvicorn main:app --reload
+    ```
+    If you are in the project root directory, you can run:
+    ```bash
+    uvicorn app.main:app --reload
+    ```
+
+5.  Open your browser and navigate to `http://localhost:8000`.
+
+## How to Use
+
+1.  Export your WhatsApp chat:
+    - Open the WhatsApp chat you want to analyze.
+    - Tap on the three dots (menu) > More > Export chat.
+    - Choose 'Without Media'.
+    - Save the `.txt` file (or the `.zip` file if your phone automatically zips it).
+2.  Navigate to the application in your browser.
+3.  Click 'Choose File', select your exported chat file, and click 'Upload'.
+4.  View the analysis results and generated plots.
+
+## API Endpoint
+
+-   `GET /api/analyze`: Analyzes all `.txt` files currently in the `app/uploads` directory and returns the results as JSON. This is mainly for demonstration or batch processing if files are manually placed there.
+
+    *Note: For a production environment, the `uploads` directory handling would need to be more robust (e.g., unique user sessions, cleanup of old files).*
+
+## To-Do / Potential Improvements
+
+-   [ ] More sophisticated NLP analysis (e.g., topic modeling, named entity recognition).
+-   [ ] Interactive charts (e.g., using Plotly Dash or Bokeh).
+-   [ ] User authentication and storage of past analyses.
+-   [ ] Support for more chat platforms.
+-   [ ] Improved error handling and user feedback.
+-   [ ] Unit and integration tests.
+-   [ ] CI/CD pipeline for automated testing and deployment.
