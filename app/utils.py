@@ -8,6 +8,7 @@ import shutil # Added for file copying
 # Matplotlib and Seaborn removed for client-side plotting
 import os # Retained for os.makedirs if needed elsewhere, or can be removed if not used by other functions.
 attachment_regex = re.compile(r'^\u200e?<attached: (.*?)>')
+sentence_end_regex = re.compile(r'[.!?]+')
 def parse_chat(file_path: Path):
     """Parses a WhatsApp chat file and extracts messages, timestamps, senders, and media attachment info."""
     messages = []
@@ -65,6 +66,21 @@ def parse_chat(file_path: Path):
                 messages[-1]["message"] += "\n" + line.strip()
 
     return messages
+
+
+def get_top_sentences(messages, top_n=10):
+    """Extracts and counts sentences from messages, returning the most common ones."""
+    sentence_counts = Counter()
+    for msg_data in messages:
+        # Only process actual text messages, ignore media placeholders for sentence analysis
+        if not msg_data.get("media_type"):
+            # Normalize: lowercase, strip whitespace
+            text = msg_data["message"].lower().strip()
+            # Split into sentences based on '.', '!', '?'
+            # Filter out very short "sentences" (e.g., just punctuation or single words if desired)
+            sentences = [s.strip() for s in sentence_end_regex.split(text) if len(s.strip().split()) > 2] # Min 3 words
+            sentence_counts.update(sentences)
+    return sentence_counts.most_common(top_n)
 
 # generate_plots function removed as plotting will be handled client-side.
 
@@ -133,6 +149,7 @@ def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_fo
 
     most_common_words = word_counts.most_common(10)
     most_common_emojis = emoji_counts.most_common(10)
+    top_sentences = get_top_sentences(messages, top_n=10)
     avg_sentiment = {sender: round(sum(scores)/len(scores), 3) if scores else 0 for sender, scores in sentiment_scores.items()}
     avg_message_length_per_sender = {sender: round(sum(lengths)/len(lengths), 1) if lengths else 0 for sender, lengths in message_lengths_per_sender.items()}
 
@@ -149,7 +166,7 @@ def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_fo
     serializable_sample_messages = []
     show_previews = media_options not in ["analyze_media_no_preview"]
 
-    for msg_data in messages[:25]: # Show more sample messages, including media
+    for msg_data in messages[-500:]: # Show more sample messages, including media
         serializable_msg = {
             "timestamp": msg_data["timestamp"].isoformat(),
             "sender": msg_data["sender"],
@@ -199,6 +216,7 @@ def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_fo
         "media_counts_per_sender": {s: dict(counts) for s, counts in media_counts_per_sender.items()},
         "total_media_counts": dict(total_media_counts),
         "total_media_count": sum(total_media_counts.values()), # Added total count of all media
+        "top_sentences": top_sentences, # Added top sentences
         "sample_messages": serializable_sample_messages,
         "media_options_used": media_options # Pass along the options used for analysis, renamed for clarity
     }

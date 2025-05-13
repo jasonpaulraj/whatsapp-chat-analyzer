@@ -11,27 +11,32 @@
             font-family: 'Inter', sans-serif;
         }
         .chart-container {
+            height: 300px;
             position: relative;
             margin: auto;
-            height: 300px; /* Default height, can be overridden */
-            width: 100%;
-            max-width: 500px; /* Default max-width */
         }
         .grid-container {
-            display: grid;
+        display: grid;
             gap: 1.5rem; /* Equivalent to gap-6 */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .grid-container {
+                grid-template-columns: repeat(1, minmax(0, 1fr)); /* 1 column on small screens */
+            }
         }
         @media (min-width: 768px) { /* md breakpoint */
             .grid-container {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns on medium screens */
             }
         }
-        @media (min-width: 1024px) { /* lg breakpoint */
+        @media (min-width: 1280px) { /* xl breakpoint */
             .grid-container {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns on large screens */
             }
         }
         .card {
+            overflow-y: hidden !important;
+            margin-bottom: 1.5rem;
             background-color: white;
             border-radius: 0.75rem; /* rounded-xl */
             padding: 1.5rem; /* p-6 */
@@ -83,9 +88,9 @@
 </head>
 <body class="bg-gray-100 pattern-bg min-h-screen py-8 px-4 md:px-8">
     <div id="printable-area">
-    <div class="container mx-auto max-w-6xl">
+    <div class="container mx-auto sm:max-w-6xl lg:max-w-10xl">
         <header class="mb-10 text-center">
-            <h1 class="text-4xl font-bold text-gray-800">Analysis for: <span class="text-indigo-600">{{ filename }}</span></h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Analysis for: <span class="text-indigo-600 break-words">{{ filename }}</span></h1>
             <a href="/" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800 transition-colors duration-300 text-lg">&larr; Upload another file</a>
         </header>
 
@@ -97,33 +102,33 @@
             </div>
         {% else %}
             <!-- Key Metrics Section -->
-            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 mb-8 sm:mb-10">
                 <div class="card text-center">
-                    <h3 class="text-lg font-semibold text-gray-500">Total Messages</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ analysis.total_messages }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-500">Total Messages</h3>
+                    <p class="text-3xl sm:text-4xl font-bold text-indigo-600 mt-1 sm:mt-2">{{ analysis.total_messages }}</p>
                 </div>
                 <div class="card text-center">
-                    <h3 class="text-lg font-semibold text-gray-500">Active Senders</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ analysis.messages_per_sender | length }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-500">Active Senders</h3>
+                    <p class="text-3xl sm:text-4xl font-bold text-indigo-600 mt-1 sm:mt-2">{{ analysis.messages_per_sender | length }}</p>
                 </div>
                 <div class="card text-center">
-                    <h3 class="text-lg font-semibold text-gray-500">Total Links Shared</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ analysis.total_links }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-500">Total Links Shared</h3>
+                    <p class="text-3xl sm:text-4xl font-bold text-indigo-600 mt-1 sm:mt-2">{{ analysis.total_links }}</p>
                 </div>
                 <div class="card text-center">
-                    <h3 class="text-lg font-semibold text-gray-500">Total Questions Asked</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ analysis.total_questions }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-500">Total Questions Asked</h3>
+                    <p class="text-3xl sm:text-4xl font-bold text-indigo-600 mt-1 sm:mt-2">{{ analysis.total_questions }}</p>
                 </div>
                 <div class="card text-center">
-                    <h3 class="text-lg font-semibold text-gray-500">Total Media Shared</h3>
-                    <p class="text-4xl font-bold text-indigo-600 mt-2">{{ analysis.total_media_count if analysis.total_media_count is defined else 'N/A' }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-500">Total Media Shared</h3>
+                    <p class="text-3xl sm:text-4xl font-bold text-indigo-600 mt-1 sm:mt-2">{{ analysis.total_media_count if analysis.total_media_count is defined else 'N/A' }}</p>
                 </div>
             </section>
 
             <div class="grid-container">
                 <!-- Messages Per Sender -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Messages Per Sender</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Messages Per Sender</h3>
                     {% if analysis.messages_per_sender %}
                         <div class="chart-container" style="height: {{ [300, (analysis.messages_per_sender | length) * 40] | max }}px;">
                             <canvas id="messagesPerSenderChart"></canvas>
@@ -135,7 +140,7 @@
 
                 <!-- Hourly Activity -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Hourly Activity</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Hourly Activity</h3>
                     {% if analysis.hourly_activity %}
                         <div class="chart-container">
                             <canvas id="hourlyActivityChart"></canvas>
@@ -147,7 +152,7 @@
 
                 <!-- Day of the Week Activity -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Day of the Week Activity</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Day of the Week Activity</h3>
                     {% if analysis.day_of_week_activity %}
                         <div class="chart-container">
                             <canvas id="dayOfWeekActivityChart"></canvas>
@@ -159,7 +164,7 @@
 
                 <!-- Media Types Distribution -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Media Types Distribution</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Media Types Distribution</h3>
                     {% if analysis.total_media_counts %}
                         <div class="chart-container">
                             <canvas id="mediaTypesChart"></canvas>
@@ -171,9 +176,12 @@
                 
                 <!-- Average Sentiment Per Sender -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Average Sentiment Per Sender</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-1">Average Sentiment Per Sender</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
+                        Shows the average emotional tone of each sender's messages. Scores range from -1 (negative) to +1 (positive).
+                    </p>
                     {% if analysis.average_sentiment %}
-                         <div class="chart-container" style="height: {{ [300, (analysis.average_sentiment | length) * 40] | max }}px;">
+                        <div class="chart-container" style="height: {{ [300, (analysis.average_sentiment | length) * 40] | max }}px;">
                             <canvas id="averageSentimentChart"></canvas>
                         </div>
                     {% else %}
@@ -181,9 +189,10 @@
                     {% endif %}
                 </div>
 
+
                 <!-- Most Common Words -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Top 10 Common Words</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Top 10 Common Words</h3>
                     {% if analysis.most_common_words %}
                         <ul class="space-y-2">
                             {% for word, count in analysis.most_common_words %}
@@ -200,12 +209,12 @@
 
                 <!-- Most Common Emojis -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Top 10 Common Emojis</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Top 10 Common Emojis</h3>
                     {% if analysis.most_common_emojis %}
                         <ul class="space-y-2">
                             {% for emoji, count in analysis.most_common_emojis %}
                             <li class="flex justify-between text-gray-600">
-                                <span class="text-2xl">{{ emoji }}</span>
+                                <span class="text-xl sm:text-2xl">{{ emoji }}</span>
                                 <span class="font-medium text-indigo-500">{{ count }}</span>
                             </li>
                             {% endfor %}
@@ -215,9 +224,26 @@
                     {% endif %}
                 </div>
 
+                <!-- Top 10 Common Sentences -->
+                <div class="card">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Top 10 Common Sentences</h3>
+                    {% if analysis.top_sentences %}
+                        <ul class="space-y-2 text-xs sm:text-sm">
+                            {% for sentence, count in analysis.top_sentences %}
+                                <li class="p-2 bg-gray-50 rounded-md shadow-sm">
+                                    <span class="text-gray-700 block leading-tight">"{{ sentence|capitalize }}"</span>
+                                    <span class="font-medium text-indigo-500 text-xxs sm:text-xs block text-right">Used {{ count }} times</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-gray-500">No sentence data available.</p>
+                    {% endif %}
+                </div>
+
                 <!-- Average Message Length Per Sender -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Avg. Message Length (chars)</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Avg. Message Length (chars)</h3>
                      {% if analysis.avg_message_length_per_sender %}
                         <ul class="space-y-2">
                             {% for sender, length in analysis.avg_message_length_per_sender.items() %}
@@ -234,7 +260,7 @@
 
                 <!-- Links Shared Per Sender -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Links Shared Per Sender</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Links Shared Per Sender</h3>
                      {% if analysis.link_counts_per_sender %}
                         <ul class="space-y-2">
                             {% for sender, count in analysis.link_counts_per_sender.items() %}
@@ -251,7 +277,7 @@
 
                 <!-- Questions Asked Per Sender -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Questions Asked Per Sender</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Questions Asked Per Sender</h3>
                      {% if analysis.question_counts_per_sender %}
                         <ul class="space-y-2">
                             {% for sender, count in analysis.question_counts_per_sender.items() %}
@@ -268,18 +294,18 @@
 
                 <!-- Busiest Day -->
                 <div class="card">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Busiest Day</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Busiest Day</h3>
                     {% if analysis.busiest_day and analysis.busiest_day.date != 'N/A' %}
-                        <p class="text-2xl font-semibold text-indigo-600">{{ analysis.busiest_day.date }}</p>
-                        <p class="text-gray-600">({{ analysis.busiest_day.message_count }} messages)</p>
+                        <p class="text-xl sm:text-2xl font-semibold text-indigo-600">{{ analysis.busiest_day.date }}</p>
+                        <p class="text-sm sm:text-base text-gray-600">({{ analysis.busiest_day.message_count }} messages)</p>
                     {% else %}
                         <p class="text-gray-500">No busiest day data available.</p>
                     {% endif %}
                 </div>
 
                 <!-- Daily Activity Over Time -->
-                <div class="card lg:col-span-2">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Daily Message Volume</h3>
+                <div class="card md:col-span-2 lg:col-span-1 xl:col-span-2">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Daily Message Volume</h3>
                     {% if analysis.daily_activity %}
                         <div class="chart-container" style="max-width: none;">
                             <canvas id="dailyActivityChart"></canvas>
@@ -290,16 +316,16 @@
                 </div>
 
                 <!-- Sample Messages -->
-                <div class="card lg:col-span-3">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Sample Messages</h3>
+                <div class="card md:col-span-2 lg:col-span-2 xl:col-span-3">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">Sample Messages</h3>
                     {% if analysis.sample_messages %}
-                        <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                        <div class="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto pr-1 sm:pr-2">
                             {% for msg in analysis.sample_messages %}
                                 <div class="p-3 bg-gray-50 rounded-lg shadow-sm">
-                                    <p class="text-xs text-gray-500">{{ msg.timestamp }}</p>
-                                    <p class="text-sm"><strong class="text-indigo-600">{{ msg.sender }}:</strong> {{ msg.message }}</p>
+                                    <p class="text-xxs sm:text-xs text-gray-500">{{ msg.timestamp }}</p>
+                                    <p class="text-xs sm:text-sm"><strong class="text-indigo-600">{{ msg.sender }}:</strong> {{ msg.message }}</p>
                                     {% if msg.media_type and msg.media_filename %}
-                                        <p class="text-xs text-gray-500 mt-1">Media: {{ msg.media_type }} - {{ msg.media_filename }}</p>
+                                        <p class="text-xxs sm:text-xs text-gray-500 mt-1">Media: {{ msg.media_type }} - {{ msg.media_filename }}</p>
                                         {% if msg.media_preview_path %}
                                             {% if msg.media_type == 'image' %}
                                                 <img src="/static/{{ msg.media_preview_path }}" alt="Media preview" class="mt-2 rounded max-h-40 media-preview">
@@ -332,9 +358,9 @@
 
     </div> <!-- End of printable-area -->
 
-    <div class="fixed bottom-5 right-5 no-print">
-        <button onclick="window.print();" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform transform hover:scale-110 duration-200 ease-in-out flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+    <div class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 no-print">
+        <button onclick="window.print();" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full shadow-lg transition-transform transform hover:scale-110 duration-200 ease-in-out flex items-center text-sm sm:text-base">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h1v3a2 2 0 002 2h8a2 2 0 002-2v-3h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm3 0h4v3H8V4zm6 10a1 1 0 100-2 1 1 0 000 2zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd" />
             </svg>
             Export as PDF
