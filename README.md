@@ -4,6 +4,11 @@ This project is a web application that analyzes exported WhatsApp chat files (ei
 
 ## Features
 
+![{F2626A01-1661-4EBC-B8D8-9E3F2C2A3E05}](https://github.com/user-attachments/assets/04cb1dd2-5fc6-4e6b-95e2-4bebcb3c67bb)
+![{1BC0F20B-A1A8-4B0C-BEE7-B62BB37180E5}](https://github.com/user-attachments/assets/9145181b-a2c0-4ae2-a48f-38b3e5da8125)
+
+## Features
+
 - **Chat Upload**: Users can upload their WhatsApp chat export file.
 - **Total Messages**: Displays the total number of messages in the chat.
 - **Messages per Sender**: Shows a count of messages sent by each participant.
