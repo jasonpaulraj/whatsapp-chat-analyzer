@@ -47,10 +47,42 @@
             background-size: cover;
             background-position: center;
         }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
+            #printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .media-preview, .sticker-preview, video, audio, img[alt*="preview"], img[alt*="Media"] {
+                display: none !important; /* Hide actual media elements */
+            }
+            .media-link-for-print {
+                display: inline !important; /* Show links for media */
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #e5e7eb; /* Add a light border for cards in print */
+            }
+            .chart-container canvas {
+                max-width: 100% !important; /* Ensure charts fit page width */
+                height: auto !important;
+            }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-100 pattern-bg min-h-screen py-8 px-4 md:px-8">
+    <div id="printable-area">
     <div class="container mx-auto max-w-6xl">
         <header class="mb-10 text-center">
             <h1 class="text-4xl font-bold text-gray-800">Analysis for: <span class="text-indigo-600">{{ filename }}</span></h1>
@@ -270,14 +302,21 @@
                                         <p class="text-xs text-gray-500 mt-1">Media: {{ msg.media_type }} - {{ msg.media_filename }}</p>
                                         {% if msg.media_preview_path %}
                                             {% if msg.media_type == 'image' %}
-                                                <img src="{{ url_for('static', filename='media_previews/' + msg.media_preview_path.split('/')[-1]) }}" alt="Media preview" class="mt-2 rounded max-h-40">
+                                                <img src="/static/{{ msg.media_preview_path }}" alt="Media preview" class="mt-2 rounded max-h-40 media-preview">
+                                                <span class="media-link-for-print text-xs text-blue-600 underline" style="display: none;">[Image: {{ msg.media_filename }}]</span>
                                             {% elif msg.media_type == 'video' %}
-                                                <video controls src="{{ url_for('static', filename='media_previews/' + msg.media_preview_path.split('/')[-1]) }}" class="mt-2 rounded max-h-40"></video>
+                                                <video controls src="/static/{{ msg.media_preview_path }}" class="mt-2 rounded max-h-40 media-preview"></video>
+                                                <span class="media-link-for-print text-xs text-blue-600 underline" style="display: none;">[Video: {{ msg.media_filename }}]</span>
                                             {% elif msg.media_type == 'audio' %}
-                                                <audio controls src="{{ url_for('static', filename='media_previews/' + msg.media_preview_path.split('/')[-1]) }}" class="mt-2 w-full"></audio>
+                                                <audio controls src="/static/{{ msg.media_preview_path }}" class="mt-2 w-full media-preview"></audio>
+                                                <span class="media-link-for-print text-xs text-blue-600 underline" style="display: none;">[Audio: {{ msg.media_filename }}]</span>
                                             {% elif msg.media_type == 'sticker' %}
-                                                <img src="{{ url_for('static', filename='media_previews/' + msg.media_preview_path.split('/')[-1]) }}" alt="Sticker preview" class="mt-2 rounded max-h-20">
+                                            
+                                                <img src="/static/{{ msg.media_preview_path }}" alt="Sticker preview" class="mt-2 rounded max-h-20 media-preview">
+                                                <span class="media-link-for-print text-xs text-blue-600 underline" style="display: none;">[Sticker: {{ msg.media_filename }}]</span>
                                             {% endif %}
+                                        {% elif msg.media_filename %}
+                                            <span class="media-link-for-print text-xs text-gray-500 italic" style="display: none;">(Media: {{ msg.media_filename }} - preview not available)</span>
                                         {% endif %}
                                     {% endif %}
                                 </div>
@@ -289,6 +328,17 @@
                 </div>
             </div>
         {% endif %}
+    </div>
+
+    </div> <!-- End of printable-area -->
+
+    <div class="fixed bottom-5 right-5 no-print">
+        <button onclick="window.print();" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-transform transform hover:scale-110 duration-200 ease-in-out flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h1v3a2 2 0 002 2h8a2 2 0 002-2v-3h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm3 0h4v3H8V4zm6 10a1 1 0 100-2 1 1 0 000 2zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd" />
+            </svg>
+            Export as PDF
+        </button>
     </div>
 
     <script>

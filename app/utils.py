@@ -7,7 +7,7 @@ from textblob import TextBlob
 import shutil # Added for file copying
 # Matplotlib and Seaborn removed for client-side plotting
 import os # Retained for os.makedirs if needed elsewhere, or can be removed if not used by other functions.
-
+attachment_regex = re.compile(r'^\u200e?<attached: (.*?)>')
 def parse_chat(file_path: Path):
     """Parses a WhatsApp chat file and extracts messages, timestamps, senders, and media attachment info."""
     messages = []
@@ -15,7 +15,7 @@ def parse_chat(file_path: Path):
     # Or attachment lines: \u200e[19/01/2025, 10:59:54 AM] JP: \u200e<attached: file.jpg>
     # The initial \u200e is optional. The one before <attached...> is also optional.
     line_regex = re.compile(r'^\u200e?\[(\d{1,2}/\d{1,2}/\d{2,4}), (\d{1,2}:\d{2}:\d{2}\s*[APM]{2})\] (.*?): (.*)')
-    attachment_regex = re.compile(r'^\u200e?<attached: (.*?)>')
+    
 
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -68,7 +68,7 @@ def parse_chat(file_path: Path):
 
 # generate_plots function removed as plotting will be handled client-side.
 
-def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_folder_path: str = None, static_previews_dir: Path = None):
+def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_folder_path: str = None, static_previews_dir: Path = None, session_id: str = None):
     """Analyzes chat messages for various metrics, including media attachments."""
     
     messages = parse_chat(file_path)
@@ -170,7 +170,8 @@ def analyze_chat(file_path: Path, media_options: str = "analyze_media", media_fo
                 try:
                     static_previews_dir.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(source_media_path, destination_preview_path_abs)
-                    serializable_msg["media_preview_path"] = f"media_previews/{preview_filename}"
+                    # Construct path relative to static dir, including session_id
+                    serializable_msg["media_preview_path"] = f"media_previews/{session_id}/{preview_filename}"
                 except Exception as e:
                     print(f"Error copying media for preview {preview_filename}: {e}")
                     serializable_msg["media_preview_path"] = None # Fallback if copy fails
