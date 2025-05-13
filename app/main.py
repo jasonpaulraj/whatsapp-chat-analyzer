@@ -2,7 +2,10 @@ from fastapi import FastAPI, UploadFile, File, Request, Form, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-import zipfile, os, shutil, uuid # Added uuid for unique folder names
+import zipfile
+import os
+import shutil
+import uuid  # Added uuid for unique folder names
 from pathlib import Path
 
 from utils import analyze_chat
@@ -18,6 +21,7 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def read_form(request: Request):
     # Clean up uploads and media previews directories
@@ -26,18 +30,19 @@ async def read_form(request: Request):
             shutil.rmtree(item, ignore_errors=True)
         else:
             item.unlink(missing_ok=True)
-    
+
     for item in MEDIA_PREVIEWS_DIR.iterdir():
-        if item.is_dir(): # Only remove session-specific subdirectories
+        if item.is_dir():  # Only remove session-specific subdirectories
             shutil.rmtree(item, ignore_errors=True)
         # Optionally, handle individual files directly in MEDIA_PREVIEWS_DIR if any are expected
         # else:
         #     item.unlink(missing_ok=True)
-    
+
     # Ensure the base directories exist after cleanup (though they should not be deleted by rmtree on their contents)
     UPLOAD_DIR.mkdir(exist_ok=True)
     MEDIA_PREVIEWS_DIR.mkdir(exist_ok=True)
     return templates.TemplateResponse("upload.html", {"request": request})
+
 
 @app.post("/upload", response_class=HTMLResponse)
 async def upload(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...), media_options: str = Form("text_only")):
@@ -67,8 +72,8 @@ async def upload(request: Request, background_tasks: BackgroundTasks, file: Uplo
 
     if original_filename.endswith(".zip"):
         # extract_dir is now session_upload_dir where the zip is saved and extracted
-        extract_dir = session_upload_dir 
-        
+        extract_dir = session_upload_dir
+
         try:
             with zipfile.ZipFile(saved_filepath, 'r') as zip_ref:
                 zip_ref.extractall(extract_dir)
@@ -81,7 +86,8 @@ async def upload(request: Request, background_tasks: BackgroundTasks, file: Uplo
                             chat_txt_path = member_path
                             break
             if chat_txt_path and chat_txt_path.exists():
-                media_folder_path = extract_dir # The folder containing all media (which is the session_upload_dir)
+                # The folder containing all media (which is the session_upload_dir)
+                media_folder_path = extract_dir
             else:
                 # If chat.txt not found after extraction
                 shutil.rmtree(session_upload_dir)
@@ -109,13 +115,14 @@ async def upload(request: Request, background_tasks: BackgroundTasks, file: Uplo
             #     # For now, let's assume if a .txt is not found, we might try to find one in UPLOAD_DIR as a fallback
             #     # or handle as an error. For simplicity, we'll assume _chat.txt is present.
             #     # If not, analyze_chat will likely raise an error or return an error message.
-            #     pass 
+            #     pass
     elif original_filename.endswith(".txt"):
         chat_txt_path = saved_filepath
         # No separate media folder if it's just a .txt file, media would be ignored by parser or handled if paths are absolute
 
     if not chat_txt_path or not chat_txt_path.exists():
-        shutil.rmtree(session_upload_dir) # Clean up if chat file is missing after processing
+        # Clean up if chat file is missing after processing
+        shutil.rmtree(session_upload_dir)
         return templates.TemplateResponse("result.html", {
             "request": request,
             "filename": original_filename,
@@ -127,33 +134,20 @@ async def upload(request: Request, background_tasks: BackgroundTasks, file: Uplo
     session_media_previews_dir = MEDIA_PREVIEWS_DIR / session_id
     session_media_previews_dir.mkdir(exist_ok=True)
     result = analyze_chat(
-        file_path=chat_txt_path, 
-        media_options=media_options, 
-        media_folder_path=str(media_folder_path) if media_folder_path else None,
+        file_path=chat_txt_path,
+        media_options=media_options,
+        media_folder_path=str(
+            media_folder_path) if media_folder_path else None,
         static_previews_dir=session_media_previews_dir,
         session_id=session_id  # Pass session_id
     )
 
     # Schedule cleanup of the session directory
-    background_tasks.add_task(shutil.rmtree, session_upload_dir, ignore_errors=True)
+    background_tasks.add_task(
+        shutil.rmtree, session_upload_dir, ignore_errors=True)
 
     return templates.TemplateResponse("result.html", {
         "request": request,
         "filename": file.filename,
         "analysis": result
     })
-
-# The /api/analyze endpoint is less relevant with the new UUID-based session folders 
-# and background cleanup. If it's still needed, it would require significant rework
-# to discover and process chats from potentially active (but soon to be deleted) session folders.
-# For now, focusing on the primary /upload workflow.
-# Consider removing or redesigning if this endpoint is critical.
-@app.get("/api/analyze", response_class=JSONResponse)
-async def api_analyze(media_options: str = "text_only"): 
-    results = []
-    # This endpoint's current logic of globbing UPLOAD_DIR is problematic with session folders.
-    # It might pick up temporary files or miss context. 
-    # For a robust API, it should probably accept a file ID or path directly.
-    # Temporarily, let's make it return an empty list or a message indicating its deprecated status.
-    # print("Warning: /api/analyze endpoint is not fully compatible with temporary session folders and may be deprecated.")
-    return results

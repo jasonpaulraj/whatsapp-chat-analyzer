@@ -13,9 +13,9 @@ This project is a web application that analyzes exported WhatsApp chat files (ei
 - **Daily Activity**: Shows the volume of messages exchanged per day.
 - **Busiest Day**: Identifies the day with the highest number of messages.
 - **Visualizations**: Generates and displays plots for:
-    - Messages per Sender
-    - Daily Message Volume
-    - Average Sentiment per Sender
+  - Messages per Sender
+  - Daily Message Volume
+  - Average Sentiment per Sender
 
 ## Technologies Used
 
@@ -51,29 +51,43 @@ whatsapp-chat-analyzer/
 - Docker installed (if running with Docker)
 - Python 3.10+ (if running locally)
 
-### Running with Docker (Recommended)
+### Running with Docker
 
 1.  **Build the Docker image:**
+
     ```bash
     docker build -t whatsapp-chat-analyzer .
     ```
 
 2.  **Run the Docker container:**
+
     ```bash
     docker run -p 8000:8000 whatsapp-chat-analyzer
     ```
 
 3.  Open your browser and navigate to `http://localhost:8000`.
 
+### Running with Docker Compose (Recommended)
+
+1.  **Run the container, modify the port if necessary:**
+
+    ```bash
+    docker-compose up -d
+    ```
+
+2.  Open your browser and navigate to `http://localhost:8000`.
+
 ### Running Locally
 
 1.  **Clone the repository (if you haven't already):**
+
     ```bash
     # git clone <repository-url>
     # cd whatsapp-chat-analyzer
     ```
 
 2.  **Create a virtual environment and activate it (optional but recommended):**
+
     ```bash
     python -m venv venv
     # On Windows
@@ -83,20 +97,26 @@ whatsapp-chat-analyzer/
     ```
 
 3.  **Install dependencies:**
+
     ```bash
     pip install -r requirements.txt
     ```
 
 4.  **Run the application using Uvicorn:**
     Navigate to the `app` directory if you are in the project root:
+
     ```bash
     cd app
     ```
+
     Then run:
+
     ```bash
     uvicorn main:app --reload
     ```
+
     If you are in the project root directory, you can run:
+
     ```bash
     uvicorn app.main:app --reload
     ```
@@ -113,19 +133,3 @@ whatsapp-chat-analyzer/
 2.  Navigate to the application in your browser.
 3.  Click 'Choose File', select your exported chat file, and click 'Upload'.
 4.  View the analysis results and generated plots.
-
-## API Endpoint
-
--   `GET /api/analyze`: Analyzes all `.txt` files currently in the `app/uploads` directory and returns the results as JSON. This is mainly for demonstration or batch processing if files are manually placed there.
-
-    *Note: For a production environment, the `uploads` directory handling would need to be more robust (e.g., unique user sessions, cleanup of old files).*
-
-## To-Do / Potential Improvements
-
--   [ ] More sophisticated NLP analysis (e.g., topic modeling, named entity recognition).
--   [ ] Interactive charts (e.g., using Plotly Dash or Bokeh).
--   [ ] User authentication and storage of past analyses.
--   [ ] Support for more chat platforms.
--   [ ] Improved error handling and user feedback.
--   [ ] Unit and integration tests.
--   [ ] CI/CD pipeline for automated testing and deployment.
