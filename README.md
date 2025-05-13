@@ -1,6 +1,6 @@
 # WhatsApp Chat Analyzer
 
-This project is a web application that analyzes exported WhatsApp chat files (either `.txt` or `.zip` containing a `.txt` file). It provides various statistics and visualizations about the chat.
+This project is a web application that analyzes exported WhatsApp chat files (either `.txt` or `.zip`). It provides various statistics and visualizations about the chat.
 
 ## Preview
 
